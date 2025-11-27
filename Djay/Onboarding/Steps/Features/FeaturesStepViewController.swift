@@ -125,30 +125,38 @@ extension FeaturesStepViewController: OnboardingTransitionable {
     var animatedViews: [UIView] { collectionView.visibleCells.map(\.contentView) }
     
     func animateEnter(oldView: UIView?, completion: @escaping () -> Void) {
+        view.setNeedsLayout()
         view.layoutIfNeeded()
+        collectionView.collectionViewLayout.invalidateLayout()
+        collectionView.layoutIfNeeded()
         
         guard let oldView,
               let oldLogo = oldView.viewWithTag(999),
-              let newLogo = view.viewWithTag(999) else {
+              let newLogoCell = collectionView.visibleCells.first(where: { $0.contentView.viewWithTag(999) != nil }),
+              let newLogo = newLogoCell.contentView.viewWithTag(999),
+              let snapshot = oldLogo.snapshotView(afterScreenUpdates: false) else {
             UIView.animateSlideIn(views: animatedViews, offset: 50) {
                 completion()
             }
             return
         }
         
-        let startFrame = oldLogo.superview!.convert(oldLogo.frame, to: view)
-        let endFrame = newLogo.superview!.convert(newLogo.frame, to: view)
+        let startFrame = view.convert(oldLogo.frame, from: oldLogo.superview)
+        let endFrame = view.convert(newLogo.frame, from: newLogo.superview)
         
-        newLogo.frame = startFrame
-        newLogo.alpha = 1
+        snapshot.frame = startFrame
+        view.addSubview(snapshot)
+        newLogo.alpha = 0
         
         animatedViews.filter { $0.viewWithTag(999) == nil }.forEach {
             $0.alpha = 0
         }
         
         UIView.animate(withDuration: 0.5, animations: {
-            newLogo.frame = endFrame
+            snapshot.frame = endFrame
         }, completion: { _ in
+            snapshot.removeFromSuperview()
+            newLogo.alpha = 1
             UIView.animateSlideIn(views: self.animatedViews.filter { $0.viewWithTag(999) == nil }, offset: 50) {
                 completion()
             }

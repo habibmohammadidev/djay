@@ -13,6 +13,7 @@ Djay is a music app featuring:
   - Skill level selection (Beginner/Intermediate/Advanced)
   - Finale screen with smooth transitions
 - **Custom UI Components**: Gradient backgrounds, custom knob controls, and animated page indicators
+- **Orientation Support**: Full support for portrait and landscape modes with adaptive layouts
 
 ## Requirements
 
@@ -22,8 +23,8 @@ Djay is a music app featuring:
 
 ## Architecture
 
-- MVVM pattern
-- Coordinator pattern for navigation
+- MVVM-C (Model-View-ViewModel-Coordinator) pattern
+- Coordinator pattern for navigation flow
 - Protocol-oriented design
 
 ## Project Structure
@@ -32,6 +33,10 @@ Djay is a music app featuring:
 - `Onboarding/` - Multi-step onboarding flow
 - `Extensions/` - UIKit and Foundation extensions
 - `Assets/` - Images and resources
+
+## Demo
+
+See [demo video](Screenshots/demo.mov) for a walkthrough of the app features.
 
 ## Setup
 

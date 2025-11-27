@@ -17,7 +17,6 @@ class WelcomeStepViewController: UIViewController {
     let viewModel: AnyWelcomeStepViewModel
     
     private var imageHeightConstraint: NSLayoutConstraint?
-    private var titleBottomConstraint: NSLayoutConstraint?
     private var titleLeadingConstraint: NSLayoutConstraint?
     private var titleTrailingConstraint: NSLayoutConstraint?
     private var bag: AnyCancellable?
@@ -89,11 +88,9 @@ extension WelcomeStepViewController {
     
     private func setupConstraints() {
         let height = isPortrait ? LayoutConstants.Vertical.imageHeight : LayoutConstants.Horizontal.imageHeight
-        let bottomSpacing = isPortrait ? LayoutConstants.Vertical.titleBottomSpacing : LayoutConstants.Horizontal.titleBottomSpacing
         let padding = isPortrait ? LayoutConstants.Vertical.horizontalPadding : LayoutConstants.Horizontal.horizontalPadding
         
         imageHeightConstraint = imageView.heightAnchor.constraint(equalToConstant: height)
-        titleBottomConstraint = titleLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -bottomSpacing)
         titleLeadingConstraint = titleLabel.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor, constant: padding)
         titleTrailingConstraint = titleLabel.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor, constant: -padding)
         
@@ -108,7 +105,7 @@ extension WelcomeStepViewController {
             imageView.widthAnchor.constraint(lessThanOrEqualToConstant: 213),
             imageView.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.5),
             imageHeightConstraint!,
-            titleBottomConstraint!,
+            titleLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
             titleLeadingConstraint!,
             titleTrailingConstraint!
         ]).activate()
@@ -116,11 +113,9 @@ extension WelcomeStepViewController {
     
     private func updateConstraints(for size: CGSize) {
         let height = isPortrait ? LayoutConstants.Vertical.imageHeight : LayoutConstants.Horizontal.imageHeight
-        let bottomSpacing = isPortrait ? LayoutConstants.Vertical.titleBottomSpacing : LayoutConstants.Horizontal.titleBottomSpacing
         let padding = isPortrait ? LayoutConstants.Vertical.horizontalPadding : LayoutConstants.Horizontal.horizontalPadding
         
         imageHeightConstraint?.constant = height
-        titleBottomConstraint?.constant = bottomSpacing
         titleLeadingConstraint?.constant = padding
         titleTrailingConstraint?.constant = -padding
     }
