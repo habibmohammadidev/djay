@@ -4,34 +4,38 @@
 //
 
 import UIKit
+import Combine
 
 protocol OnboardingCoordinatorDelegate: AnyObject {
     func onboardingDidComplete()
 }
 
-class OnboardingCoordinator {
+protocol AnyOnboardingCoordinator {
+    func start()
+}
+
+class OnboardingCoordinator: AnyOnboardingCoordinator {
     weak var delegate: OnboardingCoordinatorDelegate?
-    private let window: UIWindow
-    private var onboardingViewController: OnboardingViewController?
+    private weak var navigationController: UINavigationController?
+    private var cancellables = Set<AnyCancellable>()
     
-    init(window: UIWindow) {
-        self.window = window
+    init(navigationController: UINavigationController?) {
+        self.navigationController = navigationController
     }
     
     func start() {
         let factory = OnboardingStepFactory()
-        let viewModel = OnboardingViewModel(factory: factory)
+        let viewModel = OnboardingViewModel(factory: factory, coordinator: self)
         let onboardingVC = OnboardingViewController(viewModel: viewModel)
         
-        onboardingVC.modalPresentationStyle = .fullScreen
+        viewModel.onboardingComplete
+            .sink { [weak self] in self?.finish() }
+            .store(in: &cancellables)
         
-        self.onboardingViewController = onboardingVC
-        window.rootViewController = onboardingVC
-        window.makeKeyAndVisible()
+        navigationController?.setViewControllers([onboardingVC], animated: false)
     }
     
     private func finish() {
-        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
         delegate?.onboardingDidComplete()
     }
 }

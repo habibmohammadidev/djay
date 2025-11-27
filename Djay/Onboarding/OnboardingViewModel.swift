@@ -13,10 +13,12 @@ class OnboardingViewModel {
     
     private(set) var currentStep: OnboardingStep?
     private let factory: OnboardingStepFactory
+    private let coordinator: AnyOnboardingCoordinator
     private var cancellables = Set<AnyCancellable>()
     
-    init(factory: OnboardingStepFactory) {
+    init(factory: OnboardingStepFactory, coordinator: AnyOnboardingCoordinator) {
         self.factory = factory
+        self.coordinator = coordinator
     }
 
     func start() {
