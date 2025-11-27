@@ -4,10 +4,9 @@
 //
 
 import UIKit
+import Combine
 
-protocol OnboardingViewControllerDelegate: AnyObject {
-    func onboardingDidComplete()
-}
+typealias AnyOnboardingStepView = OnboardingTransitionable & UIViewController
 
 class OnboardingViewController: UIViewController {
     private let gradientBackground = GradientView()
@@ -16,118 +15,70 @@ class OnboardingViewController: UIViewController {
         navigationOrientation: .horizontal
     )
     private let pageIndicator = PageIndicatorView()
-    private let continueButton = UIButton(type: .system)
-    private var currentViewController: (UIViewController & OnboardingTransitionable)?
+    private var currentViewController: AnyOnboardingStepView?
+    private var cancellables = Set<AnyCancellable>()
     
     let viewModel: OnboardingViewModel
-    weak var delegate: OnboardingViewControllerDelegate?
     
     init(viewModel: OnboardingViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        viewModel.delegate = self
+        setupUI()
+        bindViewModel()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupGradientBackground()
-        setupPageViewController()
-        setupContinueButton()
-        setupPageIndicator()
-        setupInitialSteps()
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        animatePageIndicator()
+        viewModel.start()
     }
     
-    private func setupGradientBackground() {
-        view.addSubview(gradientBackground)
-        gradientBackground.translatesAutoresizingMaskIntoConstraints = false
+    private func setupUI () {
+        view.addAutoLayoutSubview(gradientBackground)
+        view.addAutoLayoutSubview(pageIndicator)
+        setupPageViewController()
+    
+        (
+            pageIndicatorConstraints +
+            gradientBackgroundConstraints +
+            pageViewConstraints
+        ).activate()
+    }
+
+    private func bindViewModel() {
+        viewModel.navigateToViewController
+            .compactMap { $0 }
+            .sink { [weak self] viewController in
+                self?.navigateToViewController(viewController)
+            }
+            .store(in: &cancellables)
         
-        NSLayoutConstraint.activate([
-            gradientBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            gradientBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            gradientBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            gradientBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        viewModel.updatePageIndicator
+            .sink { [weak self] currentPage, totalPages in
+                self?.pageIndicator.currentPage = currentPage
+                self?.pageIndicator.numberOfPages = totalPages
+            }
+            .store(in: &cancellables)
     }
     
     private func setupPageViewController() {
         addChild(pageViewController)
-        view.addSubview(pageViewController.view)
-        pageViewController.view.translatesAutoresizingMaskIntoConstraints = false
-        
+        view.addAutoLayoutSubview(pageViewController.view)
         pageViewController.didMove(toParent: self)
-        pageViewController.delegate = self
+        pageViewController.view.subviews.compactMap { $0 as? UIScrollView }.first?.isScrollEnabled = false
     }
+}
+
+
+extension OnboardingViewController {
     
-    private func setupContinueButton() {
-        continueButton.setTitleColor(.white, for: .normal)
-        continueButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
-        continueButton.backgroundColor = UIColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 1.0)
-        continueButton.layer.cornerRadius = 12
-        continueButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
-        
-        view.addSubview(continueButton)
-        continueButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
-            continueButton.heightAnchor.constraint(equalToConstant: 56)
-        ])
-    }
-    
-    private func setupPageIndicator() {
-        view.addSubview(pageIndicator)
-        pageIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            pageIndicator.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -24),
-            pageIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageIndicator.heightAnchor.constraint(equalToConstant: 20)
-        ])
-    }
-    
-    private func setupInitialSteps() {
-        pageIndicator.numberOfPages = viewModel.totalSteps
-        pageIndicator.currentPage = 0
-        
-        if let viewController = viewModel.getInitialViewController() {
-            currentViewController = welcomeVC
-            pageViewController.setViewControllers([welcomeVC], direction: .forward, animated: false)
-            updateButtonTitle()
-        }
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let bottomInset = continueButton.frame.height + 48 + pageIndicator.frame.height + 24
-        pageViewController.view.frame = CGRect(
-            x: 0,
-            y: 0,
-            width: view.bounds.width,
-            height: view.bounds.height - bottomInset
-        )
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        animateButtonAndIndicator()
-    }
-    
-    private func animateButtonAndIndicator() {
-        continueButton.alpha = 0
+    private func animatePageIndicator() {
         pageIndicator.alpha = 0
-        continueButton.transform = CGAffineTransform(translationX: 0, y: 20)
         pageIndicator.transform = CGAffineTransform(translationX: 0, y: 20)
-        
-        UIView.animate(withDuration: 0.6, delay: 0.4, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
-            self.continueButton.alpha = 1
-            self.continueButton.transform = .identity
-        }
         
         UIView.animate(withDuration: 0.6, delay: 0.35, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
             self.pageIndicator.alpha = 1
@@ -135,69 +86,39 @@ class OnboardingViewController: UIViewController {
         }
     }
     
-    @objc private func handleContinue() {
-        let data = (currentViewController as? SkillSelectionStepViewController)?.viewModel.selectedLevel
-        viewModel.completeCurrentStep(with: data)
-    }
-    
-    private func updateButtonTitle() {
-        guard let currentVC = currentViewController else { return }
-        
-        let buttonTitle: String
-        let isEnabled: Bool
-        
-        switch currentVC {
-        case let vc as WelcomeStepViewController:
-            buttonTitle = vc.viewModel.buttonTitle
-            isEnabled = true
-        case let vc as FeaturesStepViewController:
-            buttonTitle = vc.viewModel.buttonTitle
-            isEnabled = true
-        case let vc as SkillSelectionStepViewController:
-            buttonTitle = vc.viewModel.buttonTitle
-            isEnabled = vc.viewModel.isContinueEnabled
-        case let vc as FinaleStepViewController:
-            buttonTitle = vc.viewModel.buttonTitle
-            isEnabled = true
-        default:
-            buttonTitle = "Continue"
-            isEnabled = true
-        }
-        
-        continueButton.setTitle(buttonTitle, for: .normal)
-        continueButton.isEnabled = isEnabled
-    }
-}
-
-extension OnboardingViewController: UIPageViewControllerDelegate {
-    func pageViewController(_ pageViewController: UIPageViewController, animationControllerFor direction: UIPageViewController.NavigationDirection) -> UIViewControllerAnimatedTransitioning? {
-        OnboardingTransitionAnimator(isForward: direction == .forward)
-    }
-}
-
-extension OnboardingViewController: SkillSelectionStepViewModelDelegate {
-    func didSelectSkillLevel(_ level: SkillLevel) {
-        updateButtonTitle()
-    }
-}
-
-extension OnboardingViewController: OnboardingViewModelDelegate {
-    func shouldNavigateToViewController(_ viewController: UIViewController & OnboardingTransitionable) {
+    private func navigateToViewController(_ viewController: AnyOnboardingStepView) {
         currentViewController = viewController
-        pageViewController.setViewControllers([viewController], direction: .forward, animated: true) { [weak self] completed in
-            guard completed, let self = self else { return }
-            self.updateButtonTitle()
-        }
-    }
-    
-    func shouldUpdatePageIndicator(currentPage: Int, totalPages: Int) {
-        pageIndicator.currentPage = currentPage
-        pageIndicator.numberOfPages = totalPages
-    }
-    
-    func onboardingDidComplete() {
-        delegate?.onboardingDidComplete()
+        pageViewController.setViewControllers([viewController], direction: .forward, animated: false)
+        viewController.view.layoutIfNeeded()
+        viewController.animateTransition()
     }
 }
 
+extension OnboardingViewController {
+    private var pageView: UIView { pageViewController.view }
+    private var pageIndicatorConstraints: [NSLayoutConstraint] {
+        [
+            pageIndicator.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            pageIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            pageIndicator.heightAnchor.constraint(equalToConstant: 20)
+        ]
+    }
+    
+    private var gradientBackgroundConstraints: [NSLayoutConstraint] {
+        [
+            gradientBackground.topAnchor.constraint(equalTo: view.topAnchor),
+            gradientBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            gradientBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            gradientBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]
+    }
 
+    private var pageViewConstraints: [NSLayoutConstraint] {
+        [
+            pageView.topAnchor.constraint(equalTo: view.topAnchor),
+            pageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            pageView.bottomAnchor.constraint(equalTo: pageIndicator.topAnchor, constant: -8)
+        ]
+    }
+}

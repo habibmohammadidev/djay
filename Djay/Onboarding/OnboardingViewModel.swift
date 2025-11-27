@@ -4,41 +4,35 @@
 //
 
 import UIKit
-
-protocol OnboardingViewModelDelegate: AnyObject {
-    func shouldNavigateToViewController(_ viewController: UIViewController & OnboardingTransitionable)
-    func shouldUpdatePageIndicator(currentPage: Int, totalPages: Int)
-    func onboardingDidComplete()
-}
+import Combine
 
 class OnboardingViewModel {
-    weak var delegate: OnboardingViewModelDelegate?
-    private(set) var currentStep: OnboardingStep = .welcome
-    private var selectedSkillLevel: SkillLevel?
+    let navigateToViewController = PassthroughSubject<AnyOnboardingStepView, Never>()
+    let updatePageIndicator = PassthroughSubject<(currentPage: Int, totalPages: Int), Never>()
+    let onboardingComplete = PassthroughSubject<Void, Never>()
+    
+    private(set) var currentStep: OnboardingStep?
     private let factory: OnboardingStepFactory
+    private var cancellables = Set<AnyCancellable>()
     
     init(factory: OnboardingStepFactory) {
         self.factory = factory
     }
-    
-    func completeCurrentStep(with data: Any? = nil) { //TODO: Habib remove Data
-        if let skillLevel = data as? SkillLevel {
-            selectedSkillLevel = skillLevel
-        }
-        
-        if let nextStep = factory.nextStep(after: currentStep, selectedSkillLevel: selectedSkillLevel) {
+
+    func start() {
+        checkNextStep()
+    }
+
+    private func checkNextStep() {
+        if let nextStep = factory.nextStep(after: currentStep) {
             currentStep = nextStep
-            if let vc = factory.createViewController(for: nextStep, skillLevel: selectedSkillLevel) {
-                delegate?.shouldNavigateToViewController(vc)
-                delegate?.shouldUpdatePageIndicator(currentPage: currentStep.rawValue, totalPages: totalSteps)
+            if let vc = factory.createViewController(for: nextStep, onComplete: checkNextStep) {
+                navigateToViewController.send(vc)
             }
         } else {
-            delegate?.onboardingDidComplete()
+            onboardingComplete.send()
         }
-    }
-    
-    func getInitialViewController() -> (UIViewController & OnboardingTransitionable)? {
-        factory.createViewController(for: .welcome, skillLevel: nil)
+        updatePageIndicator.send((currentPage: (currentStep ?? .welcome).rawValue, totalPages: totalSteps))
     }
     
     var totalSteps: Int { OnboardingStep.allCases.count }

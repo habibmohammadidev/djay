@@ -19,11 +19,10 @@ class OnboardingCoordinator {
     }
     
     func start() {
-        let viewModel = OnboardingViewModel()
+        let factory = OnboardingStepFactory()
+        let viewModel = OnboardingViewModel(factory: factory)
         let onboardingVC = OnboardingViewController(viewModel: viewModel)
         
-        viewModel.skillSelectionDelegate = onboardingVC
-        onboardingVC.delegate = self
         onboardingVC.modalPresentationStyle = .fullScreen
         
         self.onboardingViewController = onboardingVC
@@ -34,11 +33,5 @@ class OnboardingCoordinator {
     private func finish() {
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
         delegate?.onboardingDidComplete()
-    }
-}
-
-extension OnboardingCoordinator: OnboardingViewControllerDelegate {
-    func onboardingDidComplete() {
-        finish()
     }
 }

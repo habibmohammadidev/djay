@@ -35,15 +35,14 @@ class PageIndicatorView: UIView {
         stackView.spacing = 8
         stackView.alignment = .center
         
-        addSubview(stackView)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        addAutoLayoutSubview(stackView)
         
-        NSLayoutConstraint.activate([
+        [
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             stackView.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
             stackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor)
-        ])
+        ].activate()
     }
     
     private func setupDots() {
@@ -56,10 +55,10 @@ class PageIndicatorView: UIView {
             dot.layer.cornerRadius = 4
             dot.translatesAutoresizingMaskIntoConstraints = false
             
-            NSLayoutConstraint.activate([
+            [
                 dot.widthAnchor.constraint(equalToConstant: 8),
                 dot.heightAnchor.constraint(equalToConstant: 8)
-            ])
+            ].activate()
             
             stackView.addArrangedSubview(dot)
             dotViews.append(dot)
