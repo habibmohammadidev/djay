@@ -9,7 +9,7 @@ This onboarding flow uses **MVVM + Coordinator** pattern with UIKit, providing a
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      SceneDelegate                          │
-│  • Checks UserDefaults for completion status               │
+│  • Checks UserDefaults for completion status                │
 │  • Creates OnboardingCoordinator or shows main app          │
 └────────────────────┬────────────────────────────────────────┘
                      │
@@ -17,28 +17,28 @@ This onboarding flow uses **MVVM + Coordinator** pattern with UIKit, providing a
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                 OnboardingCoordinator                       │
-│  • Manages onboarding lifecycle                            │
-│  • Handles completion callback                             │
-│  • Saves completion state to UserDefaults                  │
+│  • Manages onboarding lifecycle                             │
+│  • Handles completion callback                              │
+│  • Saves completion state to UserDefaults                   │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      │ creates & presents
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │            OnboardingPageViewController                     │
-│  • UIPageViewController subclass                           │
-│  • Manages horizontal paging between steps                 │
-│  • Controls page indicators                                │
-│  • Handles step progression logic                          │
+│  • UIPageViewController subclass                            │
+│  • Manages horizontal paging between steps                  │
+│  • Controls page indicators                                 │
+│  • Handles step progression logic                           │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      │ contains array of
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │           OnboardingStepViewController                      │
-│  • Generic container for each step                         │
-│  • Binds view to view model                                │
-│  • Triggers animations on appearance                       │
+│  • Generic container for each step                          │
+│  • Binds view to view model                                 │
+│  • Triggers animations on appearance                        │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      ├─────────────┬──────────────┐
