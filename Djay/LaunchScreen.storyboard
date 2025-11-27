@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -17,16 +18,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="OnboardingBackgroundGradient" translatesAutoresizingMaskIntoConstraints="NO" id="Exi-0b-xAS">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="OnboardingBackgroundGradient" translatesAutoresizingMaskIntoConstraints="NO" id="Exi-0b-xAS">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <color key="backgroundColor" name="AccentOrange"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="habib" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tVU-QP-Wpi">
-                                <rect key="frame" x="175" y="415.66666666666669" width="43" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Z0W-H6-P0a"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -35,8 +30,6 @@
                             <constraint firstItem="Exi-0b-xAS" firstAttribute="width" secondItem="JZH-G9-BTZ" secondAttribute="width" id="CI8-6c-ySW"/>
                             <constraint firstItem="Exi-0b-xAS" firstAttribute="centerX" secondItem="Z0W-H6-P0a" secondAttribute="centerX" id="GAq-5K-7fK"/>
                             <constraint firstItem="Exi-0b-xAS" firstAttribute="height" secondItem="JZH-G9-BTZ" secondAttribute="height" id="bKT-Ps-lAg"/>
-                            <constraint firstItem="tVU-QP-Wpi" firstAttribute="centerY" secondItem="Exi-0b-xAS" secondAttribute="centerY" id="kPd-Ps-zh7"/>
-                            <constraint firstItem="tVU-QP-Wpi" firstAttribute="centerX" secondItem="Exi-0b-xAS" secondAttribute="centerX" id="kqt-mA-aLz"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -46,7 +39,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="OnboardingBackgroundGradient" width="10" height="1536"/>
+        <image name="OnboardingBackgroundGradient" width="1024" height="1024"/>
         <namedColor name="AccentOrange">
             <color red="0.98400002717971802" green="0.60799998044967651" blue="0.0040000001899898052" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
