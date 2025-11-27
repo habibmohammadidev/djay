@@ -18,7 +18,7 @@ class FinaleStepViewModel {
     }
 }
 
-extension FinaleStepViewModel: AnyOnboardingStepViewModel {
+extension FinaleStepViewModel: AnyFinaleStepViewModel {
     var buttonTitle: AnyPublisher<String, Never> {
         Just("Get Started").eraseToAnyPublisher()
     }

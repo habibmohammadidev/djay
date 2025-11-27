@@ -115,10 +115,10 @@ class SkillSelectionStepViewController: UIViewController {
             .store(in: &cancellables)
         
         viewModel.isButtonEnabled
-            .sink(receiveValue: { [weak self] isEnabled in
+            .sink { [weak self] isEnabled in
                 self?.continueButton.isEnabled = isEnabled
                 self?.continueButton.animateEnabled()
-            })
+            }
             .store(in: &cancellables)
     }
     
