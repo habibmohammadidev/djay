@@ -25,7 +25,7 @@ class WaveAnimationView: UIView {
     }
     
     private func setup() {
-        waveLayer.strokeColor = UIColor.white.withAlphaComponent(0.6).cgColor
+        waveLayer.strokeColor = UIColor.whiteBase.withAlphaComponent(0.6).cgColor
         waveLayer.fillColor = UIColor.clear.cgColor
         waveLayer.lineWidth = 3
         layer.addSublayer(waveLayer)

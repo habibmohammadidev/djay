@@ -25,15 +25,15 @@ class SkillOptionView: UIView {
     }
     
     private func setupUI() {
-        backgroundColor = UIColor.white.withAlphaComponent(0.1)
+        backgroundColor = UIColor.whiteBase.withAlphaComponent(0.1)
         layer.cornerRadius = 12
         layer.borderWidth = 2
-        layer.borderColor = UIColor.white.withAlphaComponent(0.1).cgColor
+        layer.borderColor = UIColor.whiteBase.withAlphaComponent(0.1).cgColor
         
         radioButton.backgroundColor = .clear
         radioButton.layer.cornerRadius = 12
         radioButton.layer.borderWidth = 2
-        radioButton.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+        radioButton.layer.borderColor = UIColor.whiteBase.withAlphaComponent(0.3).cgColor
         
         radioInner.backgroundColor = UIColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 1.0)
         radioInner.layer.cornerRadius = 6

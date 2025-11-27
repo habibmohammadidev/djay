@@ -122,8 +122,8 @@ class HomeViewController: UIViewController {
         
         startStopButton.setTitle(viewModel.buttonTitle, for: .normal)
         startStopButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        startStopButton.setTitleColor(.white, for: .normal)
-        startStopButton.backgroundColor = UIColor.white.withAlphaComponent(0.2)
+        startStopButton.setTitleColor(.whiteBase, for: .normal)
+        startStopButton.backgroundColor = UIColor.whiteBase.withAlphaComponent(0.2)
         startStopButton.layer.cornerRadius = 25
         startStopButton.addTarget(self, action: #selector(togglePlayback), for: .touchUpInside)
         

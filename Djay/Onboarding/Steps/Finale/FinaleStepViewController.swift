@@ -40,7 +40,7 @@ class FinaleStepViewController: UIViewController {
         titleLabel.numberOfLines = 0
         
         subtitleLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        subtitleLabel.textColor = UIColor.white.withAlphaComponent(0.8)
+        subtitleLabel.textColor = UIColor.whiteBase.withAlphaComponent(0.8)
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
         

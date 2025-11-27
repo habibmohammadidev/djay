@@ -51,7 +51,7 @@ class PageIndicatorView: UIView {
         
         for _ in 0..<numberOfPages {
             let dot = UIView()
-            dot.backgroundColor = UIColor.white.withAlphaComponent(0.3)
+            dot.backgroundColor = UIColor.whiteBase.withAlphaComponent(0.3)
             dot.layer.cornerRadius = 4
             dot.translatesAutoresizingMaskIntoConstraints = false
             
@@ -73,8 +73,8 @@ class PageIndicatorView: UIView {
             
             UIView.animate(withDuration: 0.3) {
                 dot.backgroundColor = isActive 
-                    ? UIColor.white
-                    : UIColor.white.withAlphaComponent(0.3)
+                    ? UIColor.whiteBase
+                    : UIColor.whiteBase.withAlphaComponent(0.3)
                 dot.transform = isActive 
                     ? CGAffineTransform(scaleX: 1.2, y: 1.2)
                     : .identity

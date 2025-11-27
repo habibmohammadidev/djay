@@ -52,13 +52,13 @@ class SkillSelectionStepViewController: UIViewController {
         iconImageView.contentMode = .scaleAspectFit
         
         titleLabel.font = .systemFont(ofSize: 32, weight: .bold)
-        titleLabel.textColor = .white
+        titleLabel.textColor = .whiteBase
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 0
         titleLabel.text = viewModel.title
         
         subtitleLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        subtitleLabel.textColor = UIColor.white.withAlphaComponent(0.8)
+        subtitleLabel.textColor = UIColor.whiteBase.withAlphaComponent(0.8)
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
         subtitleLabel.text = viewModel.subTitle

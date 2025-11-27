@@ -30,11 +30,11 @@ class KnobControl: UIControl {
         
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        titleLabel.textColor = .white
+        titleLabel.textColor = .whiteBase
         titleLabel.textAlignment = .center
         
         valueLabel.font = .systemFont(ofSize: 12, weight: .regular)
-        valueLabel.textColor = .white.withAlphaComponent(0.8)
+        valueLabel.textColor = .whiteBase.withAlphaComponent(0.8)
         valueLabel.textAlignment = .center
         
         addAutoLayoutSubviews(titleLabel, valueLabel)
@@ -61,7 +61,7 @@ class KnobControl: UIControl {
         let context = UIGraphicsGetCurrentContext()
         
         // Background circle
-        context?.setFillColor(UIColor.white.withAlphaComponent(0.2).cgColor)
+        context?.setFillColor(UIColor.whiteBase.withAlphaComponent(0.2).cgColor)
         context?.fillEllipse(in: knobRect)
         
         // Value arc
@@ -69,7 +69,7 @@ class KnobControl: UIControl {
         let endAngle = CGFloat.pi * 2.25
         let valueAngle = startAngle + (endAngle - startAngle) * CGFloat((value - minimumValue) / (maximumValue - minimumValue))
         
-        context?.setStrokeColor(UIColor.white.cgColor)
+        context?.setStrokeColor(UIColor.whiteBase.cgColor)
         context?.setLineWidth(4)
         context?.addArc(center: center, radius: radius, startAngle: startAngle, endAngle: valueAngle, clockwise: false)
         context?.strokePath()
@@ -77,7 +77,7 @@ class KnobControl: UIControl {
         // Indicator
         let indicatorX = center.x + cos(valueAngle) * (radius - 10)
         let indicatorY = center.y + sin(valueAngle) * (radius - 10)
-        context?.setFillColor(UIColor.white.cgColor)
+        context?.setFillColor(UIColor.whiteBase.cgColor)
         context?.fillEllipse(in: CGRect(x: indicatorX - 4, y: indicatorY - 4, width: 8, height: 8))
     }
     
