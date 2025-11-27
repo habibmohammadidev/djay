@@ -8,11 +8,13 @@ import UIKit
 class AppCoordinator {
     private let window: UIWindow
     private var navigationController: UINavigationController?
+    private let fadeDelegate = FadeNavigationDelegate()
     
     init(window: UIWindow) {
         self.window = window
         self.navigationController = UINavigationController()
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.delegate = fadeDelegate
     }
     
     func start() {
@@ -25,7 +27,7 @@ class AppCoordinator {
     }
     
     private func showMainApp() {
-        let mainVC = MainViewController()
+        let mainVC = HomeViewController(viewModel: HomeViewModel())
         navigationController?.setViewControllers([mainVC], animated: true)
     }
 }

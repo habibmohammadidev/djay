@@ -1,15 +1,15 @@
 //
-//  MainViewModel.swift
+//  HomeViewModel.swift
 //  Djay
 //
 
 import AVFoundation
 import Combine
 
-class MainViewModel {
+class HomeViewModel {
     private let audioEngine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
-    private var isPlaying = false
+    @Published private var isPlaying = false
     
     @Published var frequency: Float = 440.0
     @Published var amplitude: Float = 0.5
@@ -96,5 +96,23 @@ class MainViewModel {
         
         playerNode.scheduleBuffer(buffer, at: nil, options: .loops)
         playerNode.play()
+    }
+}
+
+extension HomeViewModel: AnyHomeViewModel {
+    var buttonTitlePublisher: AnyPublisher<String, Never> {
+        $isPlaying.map { $0 ? "Stop" : "Play" }.eraseToAnyPublisher()
+    }
+
+    var frequencyPublisher: AnyPublisher<Float, Never> {
+        $frequency.eraseToAnyPublisher()
+    }
+
+    var amplitudePublisher: AnyPublisher<Float, Never> {
+        $amplitude.eraseToAnyPublisher()
+    }
+
+    var vibrationPublisher: AnyPublisher<Float, Never> {
+        $vibration.eraseToAnyPublisher()
     }
 }
