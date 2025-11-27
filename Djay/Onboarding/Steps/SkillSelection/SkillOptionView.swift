@@ -11,7 +11,7 @@ class SkillOptionView: UIView {
     private let radioInner = UIView()
 
 
-    var isSelected: Bool = false { didSet { updateSelection(oldValue: oldValue) } }    
+    var isSelected: Bool = false { didSet { updateSelection(oldValue: oldValue) } }
     var onTap: (() -> Void)?
     
     init(title: String) {
@@ -25,7 +25,7 @@ class SkillOptionView: UIView {
     }
     
     private func setupUI() {
-        backgroundColor = UIColor.white.withAlphaComponent(0.05)
+        backgroundColor = UIColor.white.withAlphaComponent(0.1)
         layer.cornerRadius = 12
         layer.borderWidth = 2
         layer.borderColor = UIColor.white.withAlphaComponent(0.1).cgColor
@@ -40,7 +40,7 @@ class SkillOptionView: UIView {
         radioInner.alpha = 0
         
         titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        titleLabel.textColor = .white
+        titleLabel.textColor = .textPrimary
         titleLabel.numberOfLines = 0
         
         addAutoLayoutSubviews(radioButton, radioInner, titleLabel)
@@ -74,16 +74,13 @@ class SkillOptionView: UIView {
         let shouldAnimate = oldValue != isSelected
         UIView.animate(withDuration: shouldAnimate && isSelected ? 0.3 : 0,
                        delay: 0,
-                       usingSpringWithDamping: shouldAnimate ? 0.3 : 0,
+                       usingSpringWithDamping: shouldAnimate ? 1 : 0,
                        initialSpringVelocity: shouldAnimate ? 0.1 : 0) {
             self.radioInner.alpha = self.isSelected ? 1 : 0
             self.radioInner.transform = self.isSelected ? .identity : CGAffineTransform(scaleX: 0.1, y: 0.1)
             self.layer.borderColor = self.isSelected 
-                ? UIColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 1.0).cgColor
-                : UIColor.white.withAlphaComponent(0.1).cgColor
-            self.backgroundColor = self.isSelected
-                ? UIColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 0.1)
-                : UIColor.white.withAlphaComponent(0.05)
+                ? UIColor.primaryBlue.cgColor
+                : UIColor.clear.cgColor
         }
     }
 }

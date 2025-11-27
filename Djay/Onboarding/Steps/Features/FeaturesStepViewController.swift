@@ -2,7 +2,7 @@ import UIKit
 import Combine
 
 enum OnboardingFeatureItem {
-    case image(name: String, aspectRatio: CGFloat)
+    case image(name: String, aspectRatio: CGFloat, tag: Int? = nil)
     case text(String)
 }
 
@@ -14,9 +14,7 @@ class FeaturesStepViewController: UIViewController {
     typealias Item = OnboardingFeatureItem
     private var collectionView: UICollectionView!
     private var collectionViewWidthConstraint: NSLayoutConstraint?
-    private var bag: AnyCancellable?
 
-    let continueButton = OnboardingButton()
     let viewModel: AnyFeaturesStepViewModel
     
     init(viewModel: AnyFeaturesStepViewModel) {
@@ -51,25 +49,17 @@ class FeaturesStepViewController: UIViewController {
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "ImageCell")
         collectionView.register(TextCell.self, forCellWithReuseIdentifier: "TextCell")
         
-        continueButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
-        
-        view.addAutoLayoutSubviews(collectionView, continueButton)
-        bag = viewModel.buttonTitle
-            .sink { [weak self] title in self?.continueButton.setTitle(title) }
+        view.addAutoLayoutSubviews(collectionView)
         setupConstraints()
     }
     
-    @objc private func handleContinue() {
-        viewModel.handleContinue()
-    }
-    
     private func setupConstraints() {
-        ([
+        [
             collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 24),
             collectionView.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor, constant: 20),
             collectionView.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor, constant: -20),
-            collectionView.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -16)
-        ] + continueButtonConstraints(inView: view)).activate()
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+        ].activate()
         updateCollectionViewWidth()
     }
     
@@ -88,9 +78,9 @@ extension FeaturesStepViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch viewModel.items[indexPath.item] {
-        case .image(let name, let aspectRatio):
+        case .image(let name, let aspectRatio, let tag):
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath) as! ImageCell
-            cell.configure(imageName: name, aspectRatio: aspectRatio)
+            cell.configure(imageName: name, aspectRatio: aspectRatio, tag: tag)
             return cell
         case .text(let text):
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TextCell", for: indexPath) as! TextCell
@@ -104,13 +94,18 @@ extension FeaturesStepViewController: UICollectionViewDataSource {
 extension FeaturesStepViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let columns: CGFloat = isLandscape ? 2 : 1
+        let rows: CGFloat = CGFloat(viewModel.items.count) / columns
         let spacing: CGFloat = 16
         let availableWidth = collectionView.bounds.width
+        let availableHeight = collectionView.bounds.height
         let width = (availableWidth - spacing * (columns - 1)) / columns
         
-        return switch viewModel.items[indexPath.item] {
-        case .image(_, let aspectRatio): CGSize(width: width, height: width * aspectRatio)
-        case .text: CGSize(width: width, height: isLandscape ? 100 : 80)
+        switch viewModel.items[indexPath.item] {
+        case .image(_, let aspectRatio, _): 
+            let height = width * aspectRatio
+            return CGSize(width: width, height: min(height, availableHeight / rows))
+        case .text:
+            return CGSize(width: width, height: min(isLandscape ? 100 : 80, availableHeight / rows))
         }
     }
     
@@ -127,7 +122,7 @@ extension FeaturesStepViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - Transitions
 extension FeaturesStepViewController: OnboardingTransitionable {
-    var animatedViews: [UIView] { collectionView.visibleCells + [continueButton] }
+    var animatedViews: [UIView] { collectionView.visibleCells.map(\.contentView) }
 }
 
 extension FeaturesStepViewController {
@@ -156,26 +151,32 @@ extension FeaturesStepViewController {
     // MARK: - Cells
     class ImageCell: UICollectionViewCell {
         private let imageView = UIImageView()
-        
+        private var ratioConstraint: NSLayoutConstraint! { didSet { oldValue.isActive = false } }
         override init(frame: CGRect) {
             super.init(frame: frame)
-            imageView.contentMode = .center
+            imageView.contentMode = .scaleAspectFit
             contentView.addAutoLayoutSubviews(imageView)
-            contentView.edgeConstraints(for: imageView).activate()
+
+            [imageView.centerXAnchor.constraint(equalTo: contentView.layoutMarginsGuide.centerXAnchor),
+             imageView.centerYAnchor.constraint(equalTo: contentView.layoutMarginsGuide.centerYAnchor),
+             imageView.widthAnchor.constraint(lessThanOrEqualTo: contentView.layoutMarginsGuide.widthAnchor),
+             imageView.heightAnchor.constraint(lessThanOrEqualTo: contentView.layoutMarginsGuide.heightAnchor)
+            ].activate()
         }
         
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
         
-        func configure(imageName: String, aspectRatio: CGFloat) {
+        func configure(imageName: String, aspectRatio: CGFloat, tag: Int?) {
+            imageView.tag = tag ?? 0
             imageView.image = UIImage(named: imageName)
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: aspectRatio).isActive = true
         }
     }
     
     class TextCell: UICollectionViewCell {
         private let label = UILabel()
-        private var labelBottomConstraint: NSLayoutConstraint!
         
         override init(frame: CGRect) {
             super.init(frame: frame)
@@ -185,13 +186,9 @@ extension FeaturesStepViewController {
             label.adjustsFontSizeToFitWidth = true //TODO: Habib cut off iOS 17
             label.numberOfLines = 2
             contentView.addAutoLayoutSubviews(label)
-            labelBottomConstraint = label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-            [
-                label.topAnchor.constraint(equalTo: contentView.topAnchor),
-                label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-                labelBottomConstraint
-            ].activate()
+            contentView.readableContentGuide
+                .edgeConstraints(for: label)
+                .activate()
         }
         
         required init?(coder: NSCoder) {
@@ -200,7 +197,6 @@ extension FeaturesStepViewController {
         
         override func layoutSubviews() {
             super.layoutSubviews()
-            labelBottomConstraint.constant = isLandscape ? -8 : 0
             label.setNeedsDisplay()
         }
         

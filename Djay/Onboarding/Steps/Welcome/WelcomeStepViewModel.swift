@@ -21,6 +21,6 @@ class WelcomeStepViewModel {
 
 extension WelcomeStepViewModel: AnyWelcomeStepViewModel {
     var buttonTitle: AnyPublisher<String, Never> {
-        Just("Get Started").eraseToAnyPublisher()
+        Just("Continue").eraseToAnyPublisher()
     }
 }

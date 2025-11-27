@@ -7,20 +7,29 @@ import UIKit
 
 protocol OnboardingTransitionable {
     var animatedViews: [UIView] { get }
-    var continueButton: OnboardingButton { get }
+    func prepareForEnter(in containerView: UIView)
+    func animateEnter(completion: @escaping () -> Void)
+    func animateExit(completion: @escaping () -> Void)
 }
 
-extension OnboardingTransitionable {
-    func animateTransition() {
-        UIView.animateSlideIn(views: animatedViews, offset: 50)
+extension OnboardingTransitionable where Self: UIViewController {
+    func prepareForEnter(in containerView: UIView) {
+        animatedViews.forEach {
+            $0.alpha = 0
+            $0.transform = CGAffineTransform(translationX: 50, y: 0)
+        }
     }
     
-    func continueButtonConstraints(inView view: UIView) -> [NSLayoutConstraint] {
-        [
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
-            continueButton.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 44)
-        ]
+    func animateEnter(completion: @escaping () -> Void) {
+        view.layoutIfNeeded()
+        UIView.animateSlideIn(views: animatedViews, offset: 50) {
+            completion()
+        }
+    }
+    
+    func animateExit(completion: @escaping () -> Void) {
+        UIView.animateSlideOut(views: animatedViews, offset: -50) {
+            completion()
+        }
     }
 }

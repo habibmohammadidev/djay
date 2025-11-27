@@ -24,7 +24,6 @@ class SkillSelectionStepViewController: UIViewController {
     private let skillStackView = UIStackView()
     private let contentStackView = UIStackView()
     private var skillOptionViews: [SkillOptionView] = []
-    let continueButton = OnboardingButton()
     let viewModel: AnySkillSelectionStepViewModel
     private var cancellables = Set<AnyCancellable>()
     
@@ -85,10 +84,8 @@ class SkillSelectionStepViewController: UIViewController {
         contentStackView.addArrangedSubview(headerStackView)
         contentStackView.addArrangedSubview(skillStackView)
         
-        continueButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
-        
-        view.addAutoLayoutSubviews(contentStackView, continueButton)
-        (contentStackViewConstraints + continueButtonConstraints(inView: view)).activate()
+        view.addAutoLayoutSubviews(contentStackView)
+        contentStackViewConstraints.activate()
         
         setupSkillOptions()
         updateStackViewLayout()
@@ -109,27 +106,12 @@ class SkillSelectionStepViewController: UIViewController {
         viewModel.selectedSkillPublisher
             .sink(receiveValue: updateSelection(for:))
             .store(in: &cancellables)
-
-        viewModel.buttonTitle
-            .sink { [weak self] title in self?.continueButton.setTitle(title) }
-            .store(in: &cancellables)
-        
-        viewModel.isButtonEnabled
-            .sink { [weak self] isEnabled in
-                self?.continueButton.isEnabled = isEnabled
-                self?.continueButton.animateEnabled()
-            }
-            .store(in: &cancellables)
     }
     
     private func updateSelection(for skill: SkillLevel?) {
         skillOptionViews.forEach { $0.isSelected = false }
         guard let skill, let index = viewModel.skillOptions.firstIndex(of: skill) else { return }
         skillOptionViews[index].isSelected = true
-    }
-
-    @objc private func handleContinue() {
-        viewModel.handleContinue()
     }
     
     private func updateStackViewLayout() {
@@ -145,14 +127,14 @@ class SkillSelectionStepViewController: UIViewController {
 }
 
 extension SkillSelectionStepViewController: OnboardingTransitionable {
-    var animatedViews: [UIView] { [ iconImageView, titleLabel, subtitleLabel, continueButton] + skillOptionViews  }
+    var animatedViews: [UIView] { [ iconImageView, titleLabel, subtitleLabel] + skillOptionViews  }
 }
 
 extension SkillSelectionStepViewController {
     private var contentStackViewConstraints: [NSLayoutConstraint] {
         [
             contentStackView.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            contentStackView.bottomAnchor.constraint(lessThanOrEqualTo: continueButton.topAnchor, constant: -20),
+            contentStackView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             contentStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
             contentStackView.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor, constant: 20),
             contentStackView.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor, constant: -20),

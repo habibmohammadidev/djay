@@ -10,11 +10,9 @@ typealias AnyOnboardingStepView = OnboardingTransitionable & UIViewController
 
 class OnboardingViewController: UIViewController {
     private let gradientBackground = GradientView()
-    private let pageViewController = UIPageViewController(
-        transitionStyle: .scroll,
-        navigationOrientation: .horizontal
-    )
+    private let containerView = UIView()
     private let pageIndicator = PageIndicatorView()
+    private let continueButton = OnboardingButton()
     private var currentViewController: AnyOnboardingStepView?
     private var cancellables = Set<AnyCancellable>()
     
@@ -39,14 +37,23 @@ class OnboardingViewController: UIViewController {
     
     private func setupUI () {
         view.addAutoLayoutSubview(gradientBackground)
+        view.addAutoLayoutSubview(containerView)
         view.addAutoLayoutSubview(pageIndicator)
-        setupPageViewController()
+        view.addAutoLayoutSubview(continueButton)
+        
+        containerView.backgroundColor = .clear
+        continueButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
     
         (
             pageIndicatorConstraints +
             gradientBackgroundConstraints +
-            pageViewConstraints
+            containerViewConstraints +
+            continueButtonConstraints
         ).activate()
+    }
+    
+    @objc private func handleContinue() {
+        viewModel.currentStepViewModel?.handleContinue()
     }
 
     private func bindViewModel() {
@@ -54,6 +61,7 @@ class OnboardingViewController: UIViewController {
             .compactMap { $0 }
             .sink { [weak self] viewController in
                 self?.navigateToViewController(viewController)
+                self?.bindButtonTitle()
             }
             .store(in: &cancellables)
         
@@ -65,14 +73,22 @@ class OnboardingViewController: UIViewController {
             .store(in: &cancellables)
     }
     
-    private func setupPageViewController() {
-        addChild(pageViewController)
-        view.addAutoLayoutSubview(pageViewController.view)
-        pageViewController.didMove(toParent: self)
-        pageViewController.view.subviews.compactMap { $0 as? UIScrollView }.first?.isScrollEnabled = false
+    private func bindButtonTitle() {
+        viewModel.currentStepViewModel?.buttonTitle
+            .sink { [weak self] title in
+                self?.continueButton.setTitle(title)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.currentStepViewModel?.isButtonEnabled
+            .sink { [weak self] isEnabled in
+                self?.continueButton.isEnabled = isEnabled
+                self?.continueButton.animateEnabled()
+            }
+            .store(in: &cancellables)
     }
+    
 }
-
 
 extension OnboardingViewController {
     
@@ -87,15 +103,40 @@ extension OnboardingViewController {
     }
     
     private func navigateToViewController(_ viewController: AnyOnboardingStepView) {
+        let oldVC = currentViewController
         currentViewController = viewController
-        pageViewController.setViewControllers([viewController], direction: .forward, animated: false)
-        viewController.view.layoutIfNeeded()
-        viewController.animateTransition()
+        
+        addChild(viewController)
+        viewController.view.frame = containerView.bounds
+        viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        if let oldVC = oldVC {
+            transition(from: oldVC, to: viewController)
+        } else {
+            containerView.addSubview(viewController.view)
+            viewController.didMove(toParent: self)
+            viewController.animateEnter {}
+        }
+    }
+    
+    private func transition(from oldVC: AnyOnboardingStepView, to newVC: AnyOnboardingStepView) {
+        oldVC.willMove(toParent: nil)
+        newVC.prepareForEnter(in: containerView)
+        containerView.addSubview(newVC.view)
+        newVC.view.layoutIfNeeded()
+        
+        oldVC.animateExit {
+            oldVC.view.removeFromSuperview()
+            oldVC.removeFromParent()
+        }
+        
+        newVC.animateEnter() {
+            newVC.didMove(toParent: self)
+        }
     }
 }
 
 extension OnboardingViewController {
-    private var pageView: UIView { pageViewController.view }
     private var pageIndicatorConstraints: [NSLayoutConstraint] {
         [
             pageIndicator.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
@@ -113,12 +154,21 @@ extension OnboardingViewController {
         ]
     }
 
-    private var pageViewConstraints: [NSLayoutConstraint] {
+    private var containerViewConstraints: [NSLayoutConstraint] {
         [
-            pageView.topAnchor.constraint(equalTo: view.topAnchor),
-            pageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            pageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            pageView.bottomAnchor.constraint(equalTo: pageIndicator.topAnchor, constant: -8)
+            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -16)
+        ]
+    }
+    
+    private var continueButtonConstraints: [NSLayoutConstraint] {
+        [
+            continueButton.bottomAnchor.constraint(equalTo: pageIndicator.topAnchor, constant: -12),
+            continueButton.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor, constant: 20),
+            continueButton.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor, constant: -20),
+            continueButton.heightAnchor.constraint(equalToConstant: 44)
         ]
     }
 }

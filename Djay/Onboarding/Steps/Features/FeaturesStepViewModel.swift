@@ -8,7 +8,7 @@ import Combine
 
 class FeaturesStepViewModel {
     let items: [OnboardingFeatureItem] = [
-        .image(name: "DjayLogo", aspectRatio: 64/213),
+        .image(name: "DjayLogo", aspectRatio: 64/213, tag: 999),
         .image(name: "Hero", aspectRatio: 140/310),
         .text("Mix Your\nFavorite Music"),
         .image(name: "ADA", aspectRatio: 64/203)

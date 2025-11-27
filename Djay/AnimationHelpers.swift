@@ -28,7 +28,7 @@ extension UIView {
     
     static func animateSlideIn(
         views: [UIView],
-        offset: CGFloat,
+        offset: CGFloat = 50,
         duration: TimeInterval = 0.4,
         staggerDelay: TimeInterval = 0.05,
         completion: (() -> Void)? = nil
@@ -42,6 +42,25 @@ extension UIView {
             view.alpha = 1
             view.transform = .identity
         } completion: {
+            completion?()
+        }
+    }
+    
+    static func animateSlideOut(
+        views: [UIView],
+        offset: CGFloat = -50,
+        duration: TimeInterval = 0.4,
+        staggerDelay: TimeInterval = 0.05,
+        completion: (() -> Void)? = nil
+    ) {
+        animateStaggered(views: views, duration: duration, staggerDelay: staggerDelay) { view in
+            view.alpha = 0
+            view.transform = CGAffineTransform(translationX: offset, y: 0)
+        } completion: {
+            views.forEach {
+                $0.alpha = 1
+                $0.transform = .identity
+            }
             completion?()
         }
     }

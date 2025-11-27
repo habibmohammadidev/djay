@@ -7,16 +7,14 @@ import UIKit
 import Combine
 
 protocol AnyFinaleStepViewModel: AnyOnboardingStepViewModel {
-//    var title: String { get }
-//    var title: String { get }
+    var title: String { get }
+    var subtitle: String { get }
 }
 class FinaleStepViewController: UIViewController {
     private let imageView = UIImageView()
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
-    private var bag: AnyCancellable?
 
-    let continueButton = OnboardingButton()
     let viewModel: AnyFinaleStepViewModel
     
     init(viewModel: AnyFinaleStepViewModel) {
@@ -46,32 +44,21 @@ class FinaleStepViewController: UIViewController {
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
         
-        continueButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
-        
-        view.addAutoLayoutSubviews(imageView, titleLabel, subtitleLabel, continueButton)
+        view.addAutoLayoutSubviews(imageView, titleLabel, subtitleLabel)
         (imageViewConstraints +
          titleLabelConstraints +
-         subtitleLabelConstraints +
-         continueButtonConstraints(inView: view)
+         subtitleLabelConstraints
         ).activate()
-        
-        bag = viewModel.buttonTitle
-            .sink { [weak self] title in self?.continueButton.setTitle(title) }
-    }
-    
-    @objc private func handleContinue() {
-        viewModel.handleContinue()
     }
     
     private func configure() {
-        titleLabel.text = "You're All Set!"
-        subtitleLabel.text = "Let's start your journey"
+        titleLabel.text = viewModel.title
+        subtitleLabel.text = viewModel.subtitle
     }
-    
 }
 
 extension FinaleStepViewController: OnboardingTransitionable {
-    var animatedViews: [UIView] { [imageView, titleLabel, subtitleLabel, continueButton] }
+    var animatedViews: [UIView] { [imageView, titleLabel, subtitleLabel] }
 }
 
 extension FinaleStepViewController {

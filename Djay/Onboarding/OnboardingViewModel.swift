@@ -12,6 +12,7 @@ class OnboardingViewModel {
     let onboardingComplete = PassthroughSubject<Void, Never>()
     
     private(set) var currentStep: OnboardingStep?
+    private(set) var currentStepViewModel: AnyOnboardingStepViewModel?
     private let factory: OnboardingStepFactory
     private let coordinator: AnyOnboardingCoordinator
     private var cancellables = Set<AnyCancellable>()
@@ -28,8 +29,9 @@ class OnboardingViewModel {
     private func checkNextStep() {
         if let nextStep = factory.nextStep(after: currentStep) {
             currentStep = nextStep
-            if let vc = factory.createViewController(for: nextStep, onComplete: checkNextStep) {
-                navigateToViewController.send(vc)
+            if let result = factory.createViewController(for: nextStep, onComplete: checkNextStep) {
+                currentStepViewModel = result.viewModel
+                navigateToViewController.send(result.viewController)
             }
         } else {
             onboardingComplete.send()

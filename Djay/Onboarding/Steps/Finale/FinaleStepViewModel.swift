@@ -19,6 +19,8 @@ class FinaleStepViewModel {
 }
 
 extension FinaleStepViewModel: AnyFinaleStepViewModel {
+    var title: String { "You're All Set!" }
+    var subtitle: String { "Let's start your journey" }
     var buttonTitle: AnyPublisher<String, Never> {
         Just("Get Started").eraseToAnyPublisher()
     }
