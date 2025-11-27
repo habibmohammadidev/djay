@@ -63,23 +63,12 @@ class WelcomeStepViewController: UIViewController {
 }
 
 extension WelcomeStepViewController: OnboardingTransitionable {
-    var animatedViews: [UIView] { [logoContainerView, titleLabel] }
+    var animatedViews: [UIView] { [ titleLabel] }
     
-    func animateExit(toView newView: UIView?, completion: @escaping () -> Void) {
-        guard let newView,
-              let logo = newView.viewWithTag(999)
-        else {
-            UIView.animateSlideOut(views: animatedViews)
-            return
-        }
-        
-        let targetFrame = newView.convert(logo.frame, to: view)
-        UIView.animate(withDuration: 0.5, animations: {
-            self.imageView.frame = targetFrame
-            self.titleLabel.alpha = 0
-        }, completion: { _ in
-            completion()
-        })
+    func animateExit(completion: @escaping () -> Void) {
+        logoContainerView.alpha = 0
+        view.layoutIfNeeded()
+        UIView.animateSlideOut(views: [titleLabel], completion: completion)
     }
 }
 
@@ -108,9 +97,12 @@ extension WelcomeStepViewController {
         titleLeadingConstraint = titleLabel.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor, constant: padding)
         titleTrailingConstraint = titleLabel.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor, constant: -padding)
         
+        let aspectRatioConstraint = imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 213/64)
+        aspectRatioConstraint.priority = .defaultHigh
+        
         (logoContainerConstraints +
          [
-            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 213/64),
+            aspectRatioConstraint,
             imageView.centerXAnchor.constraint(equalTo: logoContainerView.centerXAnchor),
             imageView.centerYAnchor.constraint(equalTo: logoContainerView.centerYAnchor),
             imageView.widthAnchor.constraint(lessThanOrEqualToConstant: 213),

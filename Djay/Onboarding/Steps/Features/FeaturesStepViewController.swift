@@ -123,6 +123,37 @@ extension FeaturesStepViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - Transitions
 extension FeaturesStepViewController: OnboardingTransitionable {
     var animatedViews: [UIView] { collectionView.visibleCells.map(\.contentView) }
+    
+    func animateEnter(oldView: UIView?, completion: @escaping () -> Void) {
+        view.layoutIfNeeded()
+        
+        guard let oldView,
+              let oldLogo = oldView.viewWithTag(999),
+              let newLogo = view.viewWithTag(999) else {
+            UIView.animateSlideIn(views: animatedViews, offset: 50) {
+                completion()
+            }
+            return
+        }
+        
+        let startFrame = oldLogo.superview!.convert(oldLogo.frame, to: view)
+        let endFrame = newLogo.superview!.convert(newLogo.frame, to: view)
+        
+        newLogo.frame = startFrame
+        newLogo.alpha = 1
+        
+        animatedViews.filter { $0.viewWithTag(999) == nil }.forEach {
+            $0.alpha = 0
+        }
+        
+        UIView.animate(withDuration: 0.5, animations: {
+            newLogo.frame = endFrame
+        }, completion: { _ in
+            UIView.animateSlideIn(views: self.animatedViews.filter { $0.viewWithTag(999) == nil }, offset: 50) {
+                completion()
+            }
+        })
+    }
 }
 
 extension FeaturesStepViewController {

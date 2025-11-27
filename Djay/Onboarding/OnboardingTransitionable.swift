@@ -8,7 +8,7 @@ import UIKit
 protocol OnboardingTransitionable {
     var animatedViews: [UIView] { get }
     func prepareForEnter(in containerView: UIView)
-    func animateEnter(completion: @escaping () -> Void)
+    func animateEnter(oldView: UIView?, completion: @escaping () -> Void)
     func animateExit(completion: @escaping () -> Void)
 }
 
@@ -20,7 +20,7 @@ extension OnboardingTransitionable where Self: UIViewController {
         }
     }
     
-    func animateEnter(completion: @escaping () -> Void) {
+    func animateEnter(oldView: UIView?, completion: @escaping () -> Void) {
         view.layoutIfNeeded()
         UIView.animateSlideIn(views: animatedViews, offset: 50) {
             completion()

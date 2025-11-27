@@ -115,7 +115,7 @@ extension OnboardingViewController {
         } else {
             containerView.addSubview(viewController.view)
             viewController.didMove(toParent: self)
-            viewController.animateEnter {}
+            viewController.animateEnter(oldView: nil) {}
         }
     }
     
@@ -130,7 +130,7 @@ extension OnboardingViewController {
             oldVC.removeFromParent()
         }
         
-        newVC.animateEnter() {
+        newVC.animateEnter(oldView: oldVC.view) {
             newVC.didMove(toParent: self)
         }
     }

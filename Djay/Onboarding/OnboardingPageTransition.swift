@@ -30,7 +30,7 @@ class OnboardingPageAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         
         fromVC.animateExit {}
         
-        toVC.animateEnter {
+        toVC.animateEnter(oldView: fromVC.view) {
             transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
         }
     }
