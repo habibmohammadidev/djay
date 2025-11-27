@@ -64,7 +64,6 @@ class SkillSelectionStepViewController: UIViewController {
         subtitleLabel.text = viewModel.subTitle
         
         headTitlesStackView.axis = .vertical
-        headTitlesStackView.spacing = 12
         headTitlesStackView.alignment = .center
         headTitlesStackView.addArrangedSubview(titleLabel)
         headTitlesStackView.addArrangedSubview(subtitleLabel)
@@ -118,6 +117,7 @@ class SkillSelectionStepViewController: UIViewController {
         titleLabel.textAlignment = isLandscape ? .natural : .center
         subtitleLabel.textAlignment = isLandscape ? .natural : .center
         headTitlesStackView.alignment = isLandscape ? .leading : .center
+        headTitlesStackView.spacing = isLandscape ? 4 : 12
         headerStackView.axis = isLandscape ? .horizontal : .vertical
         skillStackView.axis = isLandscape ? .horizontal : .vertical
         skillStackView.distribution = isLandscape ? .fillEqually : .fill

@@ -17,6 +17,7 @@ class WelcomeStepViewController: UIViewController {
     let viewModel: AnyWelcomeStepViewModel
     
     private var imageHeightConstraint: NSLayoutConstraint?
+    private var imageWidthConstraint: NSLayoutConstraint?
     private var titleLeadingConstraint: NSLayoutConstraint?
     private var titleTrailingConstraint: NSLayoutConstraint?
     private var bag: AnyCancellable?
@@ -87,15 +88,19 @@ extension WelcomeStepViewController {
     }
     
     private func setupConstraints() {
-        let height = isPortrait ? LayoutConstants.Vertical.imageHeight : LayoutConstants.Horizontal.imageHeight
         let padding = isPortrait ? LayoutConstants.Vertical.horizontalPadding : LayoutConstants.Horizontal.horizontalPadding
         
-        imageHeightConstraint = imageView.heightAnchor.constraint(equalToConstant: height)
+        imageWidthConstraint = imageView.widthAnchor.constraint(equalToConstant: isPortrait ? 213 : 213)
+        imageHeightConstraint = imageView.heightAnchor.constraint(equalToConstant: isPortrait ? 64 : 64)
+        
         titleLeadingConstraint = titleLabel.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor, constant: padding)
         titleTrailingConstraint = titleLabel.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor, constant: -padding)
         
-        let aspectRatioConstraint = imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 213/64)
+        let aspectRatioConstraint = imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 213.0/64.0)
         aspectRatioConstraint.priority = .defaultHigh
+        
+        imageWidthConstraint?.priority = isPortrait ? .required : .defaultLow
+        imageHeightConstraint?.priority = isPortrait ? .defaultLow : .required
         
         (logoContainerConstraints +
          [
@@ -104,6 +109,7 @@ extension WelcomeStepViewController {
             imageView.centerYAnchor.constraint(equalTo: logoContainerView.centerYAnchor),
             imageView.widthAnchor.constraint(lessThanOrEqualToConstant: 213),
             imageView.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.5),
+            imageWidthConstraint!,
             imageHeightConstraint!,
             titleLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
             titleLeadingConstraint!,
@@ -112,10 +118,11 @@ extension WelcomeStepViewController {
     }
     
     private func updateConstraints(for size: CGSize) {
-        let height = isPortrait ? LayoutConstants.Vertical.imageHeight : LayoutConstants.Horizontal.imageHeight
         let padding = isPortrait ? LayoutConstants.Vertical.horizontalPadding : LayoutConstants.Horizontal.horizontalPadding
         
-        imageHeightConstraint?.constant = height
+        imageWidthConstraint?.priority = isPortrait ? .required : .defaultLow
+        imageHeightConstraint?.priority = isPortrait ? .defaultLow : .required
+        
         titleLeadingConstraint?.constant = padding
         titleTrailingConstraint?.constant = -padding
     }

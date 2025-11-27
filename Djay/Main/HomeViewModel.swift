@@ -100,6 +100,10 @@ class HomeViewModel {
 }
 
 extension HomeViewModel: AnyHomeViewModel {
+    var buttonTitle: String {
+        isPlaying ? "Stop" : "Play"
+    }
+
     var buttonTitlePublisher: AnyPublisher<String, Never> {
         $isPlaying.map { $0 ? "Stop" : "Play" }.eraseToAnyPublisher()
     }

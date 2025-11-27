@@ -53,9 +53,10 @@ class KnobControl: UIControl {
     override func draw(_ rect: CGRect) {
         super.draw(rect)
         
-        let knobRect = CGRect(x: rect.midX - 40, y: rect.midY - 40, width: 80, height: 80)
+        let knobSize = min(rect.width, rect.height - 40)
+        let knobRect = CGRect(x: rect.midX - knobSize/2, y: rect.midY - knobSize/2, width: knobSize, height: knobSize)
         let center = CGPoint(x: knobRect.midX, y: knobRect.midY)
-        let radius: CGFloat = 35
+        let radius = knobSize / 2 - 5
         
         let context = UIGraphicsGetCurrentContext()
         
