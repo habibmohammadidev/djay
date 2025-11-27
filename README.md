@@ -17,9 +17,7 @@ Djay is a music app featuring:
 
 ## Requirements
 
-- iOS 14.0+
-- Xcode 13.0+
-- Swift 5.0+
+- iOS 15.0+
 
 ## Architecture
 
