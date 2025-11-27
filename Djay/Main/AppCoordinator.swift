@@ -8,7 +8,7 @@ import UIKit
 class AppCoordinator {
     private let window: UIWindow
     private var navigationController: UINavigationController?
-    private let fadeDelegate = FadeNavigationDelegate()
+    private let fadeDelegate = AppMainNavigationDelegate()
     
     init(window: UIWindow) {
         self.window = window

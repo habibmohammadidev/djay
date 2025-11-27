@@ -1,11 +1,11 @@
 //
-//  FadeNavigationTransition.swift
+//  AppMainTransition.swift
 //  Djay
 //
 
 import UIKit
 
-class FadeNavigationTransition: NSObject, UIViewControllerAnimatedTransitioning {
+class AppMainTransition: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.5
     }
@@ -28,8 +28,11 @@ class FadeNavigationTransition: NSObject, UIViewControllerAnimatedTransitioning 
     }
 }
 
-class FadeNavigationDelegate: NSObject, UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return FadeNavigationTransition()
+class AppMainNavigationDelegate: NSObject, UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController,
+                              animationControllerFor operation: UINavigationController.Operation,
+                              from fromVC: UIViewController,
+                              to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        AppMainTransition()
     }
 }
